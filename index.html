@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>タイピングゲーム</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: linear-gradient(135deg, #f5f7ff, #e8f0ff);
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+      padding: 32px;
+    }
+
+    h1 {
+      margin: 0 0 24px;
+      text-align: center;
+      font-size: 32px;
+      color: #2b4eff;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .info-box {
+      flex: 1;
+      min-width: 120px;
+      background: #f4f7ff;
+      border-radius: 14px;
+      padding: 14px 16px;
+      text-align: center;
+    }
+
+    .info-label {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .info-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #1a2a6c;
+    }
+
+    .game-area {
+      background: #fafbff;
+      border: 2px solid #dbe4ff;
+      border-radius: 18px;
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .image-area {
+      margin-bottom: 18px;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-area img {
+      max-width: 220px;
+      max-height: 220px;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .question-label {
+      font-size: 16px;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      font-size: 40px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #222;
+      min-height: 60px;
+    }
+
+    .sub-text {
+      font-size: 18px;
+      color: #4d5b8a;
+      margin-bottom: 24px;
+      min-height: 28px;
+    }
+
+    .typed {
+      font-size: 28px;
+      font-family: "Courier New", monospace;
+      min-height: 40px;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+      word-break: break-all;
+    }
+
+    .typed-correct {
+      color: #2b7a0b;
+    }
+
+    .typed-wrong {
+      color: #d93025;
+    }
+
+    .message {
+      min-height: 28px;
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    #mode1Btn,
+    #mode2Btn {
+      background: #f0f3ff;
+      color: #2b4eff;
+      border: 2px solid #cfd8ff;
+    }
+
+    .mode-active {
+      background: #2b4eff !important;
+      color: white !important;
+      border-color: #2b4eff !important;
+    }
+
+    #startBtn {
+      background: #2b4eff;
+      color: white;
+    }
+
+    #restartBtn {
+      background: #00a86b;
+      color: white;
+    }
+
+    .result {
+      display: none;
+      text-align: center;
+      margin-top: 24px;
+      background: #f7fff8;
+      border: 2px solid #ccefd9;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .result h2 {
+      margin-top: 0;
+      color: #14804a;
+    }
+
+    .history-title {
+      margin-top: 24px;
+      margin-bottom: 12px;
+      font-size: 22px;
+      color: #1a2a6c;
+    }
+
+    .history-images {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .history-item {
+      width: 90px;
+      text-align: center;
+    }
+
+    .history-item img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      background: #fff;
+      border: 1px solid #dbe4ff;
+      border-radius: 10px;
+      padding: 6px;
+    }
+
+    .history-name {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #444;
+      word-break: break-word;
+      line-height: 1.4;
+    }
+
+    .notice {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+
+    @media (max-width: 600px) {
+      .question {
+        font-size: 30px;
+      }
+
+      .typed {
+        font-size: 22px;
+      }
+
+      .info-value {
+        font-size: 20px;
+      }
+
+      .image-area {
+        min-height: 170px;
+      }
+
+      .image-area img {
+        max-width: 170px;
+        max-height: 170px;
+      }
+
+      .history-item {
+        width: 78px;
+      }
+
+      .history-item img {
+        width: 78px;
+        height: 78px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>タイピングゲーム</h1>
+
+    <div class="top-bar">
+      <div class="info-box">
+        <div class="info-label">スコア</div>
+        <div class="info-value" id="score">0</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">残り時間</div>
+        <div class="info-value" id="time">60</div>
+      </div>
+      <div class="info-box">
+        <div class="info-label">問題数</div>
+        <div class="info-value" id="count">0</div>
+      </div>
+    </div>
+
+    <div class="game-area">
+      <div class="image-area">
+        <img id="questionImage" src="" alt="問題画像">
+      </div>
+
+      <div class="question-label">お題</div>
+      <div class="question" id="question">スタートを押してください</div>
+      <div class="sub-text" id="subText"></div>
+      <div class="typed" id="typedText"></div>
+      <div class="message" id="message">ローマ字で入力します</div>
+
+      <div class="controls">
+        <button id="mode1Btn">1分</button>
+        <button id="mode2Btn">2分</button>
+        <button id="startBtn">スタート</button>
+        <button id="restartBtn">もう一度</button>
+      </div>
+    </div>
+
+    <div class="result" id="result">
+      <h2>ゲーム終了</h2>
+      <p id="finalScore"></p>
+      <p id="finalCount"></p>
+      <p id="finalMode"></p>
+
+      <h3 class="history-title">出題された画像</h3>
+      <div id="historyImages" class="history-images"></div>
+    </div>
+
+    <div class="notice">
+      例: フリーザー → furi-za- / huri-za-
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      { jp: "カブト", roma: "kabuto", img: "images/カブト.png" },
+      { jp: "アーゴヨン", roma: "a-goyon", img: "images/アーゴヨン.png" },
+      { jp: "アーボック", roma: "a-bokku", img: "images/アーボック.png" },
+      { jp: "イッカネズミ", roma: "ikkanezumi", img: "images/イッカネズミ.png" },
+      { jp: "イベルタル", roma: "iberutaru", img: "images/イベルタル.png" },
+      { jp: "ウツボット", roma: "utubotto", img: "images/ウツボット.png" },
+      { jp: "ウリムー", roma: "urimu-", img: "images/ウリムー.png" },
+      { jp: "オオタチ", roma: ["o-tachi","o-tati"], img: "images/オオタチ.png" },
+      { jp: "オーロット", roma: "o-rotto", img: "images/オーロット.png" },
+      { jp: "カイロス", roma: "kairosu", img: "images/カイロス.png" },
+      { jp: "カヌチャン", roma: ["kanuchan","kanutyan"], img: "images/カヌチャン.png" },
+      { jp: "ガブリアス", roma: "gaburiasu", img: "images/ガブリアス.png" },
+      { jp: "カブルモ", roma: "kaburumo", img: "images/カブルモ.png" },
+      { jp: "カマスジョー", roma: ["kamasujo-","kamasujyo-"], img: "images/カマスジョー.png" },
+      { jp: "メガガメノデス", roma: "megagamenodesu", img: "images/ガメノデス(メガシンカ).png" },
+      { jp: "カモネギ", roma: "kamonegi", img: "images/カモネギ.png" },
+      { jp: "ガラガラ", roma: "garagara", img: "images/ガラガラ.png" },
+      { jp: "ギギギアル", roma: "gigigiaru", img: "images/ギギギアル.png" },
+      { jp: "キノココ", roma: "kinokoko", img: "images/キノココ.png" },
+      { jp: "アローラキュウコン", roma: "aro-rakyuukon", img: "images/キュウコン(アローラ).png" },
+      { jp: "ギルガルド", roma: "girugarudo", img: "images/ギルガルド.png" },
+      { jp: "クマシュン", roma: ["kumashun","kumasyun"], img: "images/クマシュン.png" },
+      { jp: "クラブ", roma: "kurabu", img: "images/クラブ.png" },
+      { jp: "グレイシア", roma: ["gureishia","gureisia"], img: "images/グレイシア.png" },
+      { jp: "メガゲッコウガ", roma: "megagekkouga", img: "images/ゲッコウガ(メガシンカ).png" },
+      { jp: "コオリッポ", roma: "koorippo", img: "images/コオリッポ.png" },
+      { jp: "アローラコラッタ", roma: "aro-rakoratta", img: "images/コラッタ(アローラ).png" },
+      { jp: "ゴローニャ", roma: "goro-nya", img: "images/ゴローニャ.png" },
+      { jp: "アローラゴローニャ", roma: "aro-ragoro-nya", img: "images/ゴローニャ(アローラ).png" },
+      { jp: "サーナイト", roma: "sa-naito", img: "images/サーナイト.png" },
+      { jp: "サーフゴー", roma: ["sa-fugo-","sa-hugo-"], img: "images/サーフゴー.png" },
+      { jp: "ガラルサニーゴ", roma: "gararusani-go", img: "images/サニーゴ(ガラル).png" },
+      { jp: "アローラサンド", roma: "aro-rasando", img: "images/サンド(アローラ).png" },
+      { jp: "シビシラス", roma: ["shibirashirasu", "sibirasirasu"], img: "images/シビシラス.png" },
+      { jp: "ジュゴン", roma: "jugon", img: "images/ジュゴン.png" },
+      { jp: "シュシュプ", roma: ["shushupu", "syusyupu"], img: "images/シュシュプ.png" },
+      { jp: "ゼラオラ", roma: "zeraora", img: "images/ゼラオラ.png" },
+      { jp: "セレビィ", roma: ["serebyi", "serebii"], img: "images/セレビィ.png" },
+      { jp: "ソルロック", roma: "sorurokku", img: "images/ゾルロック.png" },
+      { jp: "ダークライ", roma: "da-kurai", img: "images/ダークライ.png" },
+      { jp: "タテトプス", roma: "tatetopusu", img: "images/タテトプス.png" },
+      { jp: "タマゲタケ", roma: "tamagetake", img: "images/タマゲタケ.png" },
+      { jp: "タマザラシ", roma: ["tamazarashi","tamazarasi"], img: "images/タマザラシ.png" },
+      { jp: "タマタマ", roma: "tamatama", img: "images/タマタマ.png" },
+      { jp: "チルット", roma: ["chirutto","tirutto"], img: "images/チルット.png" },
+      { jp: "アローラディグダ", roma: ["aro-radiguda","aro-radyiguda"], img: "images/ディグダ(アローラ).png" },
+      { jp: "デカヌチャン", roma: ["dekanuchan","dekanutyan"], img: "images/デカヌチャン.png" },
+      { jp: "テッポウオ", roma: "teppouo", img: "images/テッポウオ.png" },
+      { jp: "デリバード", roma: "deriba-do", img: "images/デリバード.png" },
+      { jp: "トゲピー", roma: "togepi-", img: "images/トゲピー.png" },
+      { jp: "トドグラー", roma: "todogura-", img: "images/トドグラー.png" },
+      { jp: "トランセル", roma: "toranseru", img: "images/トランセル.png" },
+      { jp: "メガドリュウズ", roma: "megadoryuuzu", img: "images/ドリュウズ(メガシンカ).png" },
+      { jp: "ナカヌチャン", roma: ["nakanuchan","nakanutyan"], img: "images/ナカヌチャン.png" },
+      { jp: "アローラナッシー", roma: ["aro-ranasshi-","aro-ranassi-"], img: "images/ナッシー(アローラ).png" },
+      { jp: "ニドキング", roma: "nidokingu", img: "images/ニドキング.png" },
+      { jp: "ニドクイン", roma: "nidokuin", img: "images/ニドクイン.png" },
+      { jp: "ニドラン", roma: "nidoran", img: "images/ニドラン(メス).png" },
+      { jp: "ニドリーノ", roma: "nidori-no", img: "images/ニドリーノ.png" },
+      { jp: "ヌオー", roma: "nuo-", img: "images/ヌオー.png" },
+      { jp: "ハッカネズミ", roma: "hakkanezumi", img: "images/ハッカネズミ.png" },
+      { jp: "バニプッチ", roma: ["banipucchi","baniputti"], img: "images/バニプッチ.png" },
+      { jp: "パラス", roma: "parasu", img: "images/パラス.png" },
+      { jp: "バリコオル", roma: "barikooru", img: "images/バリコオル.png" },
+      { jp: "バルキー", roma: "baruki-", img: "images/バルキー.png" },
+      { jp: "ピジョット", roma: "pijotto", img: "images/ピジョット.png" },
+      { jp: "ヒトツキ", roma: "hitotsuki", img: "images/ヒトツキ.png" },
+      { jp: "フェローチェ", roma: ["fero-che","fero-tye"], img: "images/フェローチェ.png" },
+      { jp: "フシギダネ", roma: ["fushigidane","fisigidane","hushigidane","husigidane"], img: "images/フシギダネ.png" },
+      { jp: "フラベベ", roma: ["furabebe","hurabebe"], img: "images/フラベベ.png" },
+      { jp: "フリーザー", roma: ["furi-za-", "huri-za-"], img: "images/フリーザ.png" },
+      { jp: "ベベノム", roma: "bebenomu", img: "images/ベベノム.png" },
+      { jp: "メガヘラクロス", roma: ["megaherakurosu", "megaherakurosu"], img: "images/ヘラクロス(メガシンカ).png" },
+      { jp: "ホゲータ", roma: "hoge-ta", img: "images/ホゲータ.png" },
+      { jp: "ポッポ", roma: "poppo", img: "images/ポッポ.png" },
+      { jp: "ポポッコ", roma: "popokko", img: "images/ポポッコ.png" },
+      { jp: "マクノシタ", roma: ["makunoshita","makunosita"], img: "images/マクノシタ.png" },
+      { jp: "マグマッグ", roma: "magumaggu", img: "images/マグマッグ.png" },
+      { jp: "ガラルマタドガス", roma: "gararumatadogasu", img: "images/マタドガス(ガラル).png" },
+      { jp: "マッシブーン", roma: ["masshibu-n","massibu-n"], img: "images/マッシブーン.png" },
+      { jp: "メガマフォクシー", roma: ["megamafokushi-","megamafokusi-"], img: "images/マフォクシー(メガシンカ).png" },
+      { jp: "マリル", roma: "mariru", img: "images/マリル.png" },
+      { jp: "マルノーム", roma: "maruno-mu", img: "images/マルノーム.png" },
+      { jp: "ヒスイマルマイン", roma: "hisuimarumain", img: "images/マルマイン.png" },
+      { jp: "マルマイン", roma: "marumain", img: "images/マルマイン(原種).png" },
+      { jp: "マンタイン", roma: "mantain", img: "images/マンタイン.png" },
+      { jp: "ムチュール", roma: ["muchu-ru","mutyu-ru"], img: "images/ムチュール.png" },
+      { jp: "モスノウ", roma: "mosunou", img: "images/モスノウ.png" },
+      { jp: "ユキワラシ", roma: ["yukiwarashi","yukiwarasi"], img: "images/ユキワラシ.png" },
+      { jp: "ヨクバリス", roma: "yokubarisu", img: "images/ヨクバリス.png" },
+      { jp: "ラプラス", roma: "rapurasu", img: "images/ラプラス.png" },
+      { jp: "ランターン", roma: "ranta-n", img: "images/ランターン.png" },
+      { jp: "メガリザードンX", roma: "megariza-donx", img: "images/リザードン.png" },
+      { jp: "メガリザードンY", roma: "megariza-dony", img: "images/リザードン(メガシンカY).png" },
+      { jp: "ルナトーン", roma: "runato-n", img: "images/ルナトーン.png" },
+      { jp: "レアコイル", roma: "reakoiru", img: "images/レアコイル.png" },
+      { jp: "レントラー", roma: "rentora-", img: "images/レントラー.png" },
+      { jp: "アローラロコン", roma: "aro-rarokon", img: "images/ロコン(アローラ).png" },
+      { jp: "ロトム", roma: "rotomu", img: "images/ロトム(扇風機).png" }
+    ];
+
+    const questionEl = document.getElementById("question");
+    const subTextEl = document.getElementById("subText");
+    const typedTextEl = document.getElementById("typedText");
+    const messageEl = document.getElementById("message");
+    const scoreEl = document.getElementById("score");
+    const timeEl = document.getElementById("time");
+    const countEl = document.getElementById("count");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const mode1Btn = document.getElementById("mode1Btn");
+    const mode2Btn = document.getElementById("mode2Btn");
+    const resultEl = document.getElementById("result");
+    const finalScoreEl = document.getElementById("finalScore");
+    const finalCountEl = document.getElementById("finalCount");
+    const finalModeEl = document.getElementById("finalMode");
+    const imageEl = document.getElementById("questionImage");
+    const historyImagesEl = document.getElementById("historyImages");
+
+    let currentQuestion = null;
+    let typed = "";
+    let score = 0;
+    let count = 0;
+    let gameTime = 60;
+    let timeLeft = gameTime;
+    let timer = null;
+    let isPlaying = false;
+    let shuffledQuestions = [];
+    let shownQuestions = [];
+
+    const bgm = new Audio("sounds/bgm.wav");
+    const seCorrect = new Audio("sounds/correct.mp3");
+    const seWrong = new Audio("sounds/wrong.mp3");
+    const seStart = new Audio("sounds/start.mp3");
+
+    bgm.loop = true;
+    bgm.volume = 0.3;
+    seCorrect.volume = 0.6;
+    seWrong.volume = 0.6;
+    seStart.volume = 0.7;
+
+    function playSE(audio) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    }
+
+    function startBGM() {
+      bgm.currentTime = 0;
+      bgm.play().catch(() => {});
+    }
+
+    function stopBGM() {
+      bgm.pause();
+      bgm.currentTime = 0;
+    }
+
+    function shuffle(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function getRomaList(question) {
+      return Array.isArray(question.roma) ? question.roma : [question.roma];
+    }
+
+    function setMode(seconds) {
+      gameTime = seconds;
+      timeLeft = seconds;
+
+      mode1Btn.classList.remove("mode-active");
+      mode2Btn.classList.remove("mode-active");
+
+      if (seconds === 60) {
+        mode1Btn.classList.add("mode-active");
+      } else if (seconds === 120) {
+        mode2Btn.classList.add("mode-active");
+      }
+
+      if (!isPlaying) {
+        updateDisplay();
+      }
+    }
+
+    function setNewQuestion() {
+      if (shuffledQuestions.length === 0) {
+        shuffledQuestions = shuffle(questions);
+      }
+
+      currentQuestion = shuffledQuestions.pop();
+      shownQuestions.push(currentQuestion);
+      typed = "";
+
+      const romaList = getRomaList(currentQuestion);
+
+      questionEl.textContent = currentQuestion.jp;
+      subTextEl.textContent = romaList.join(" / ");
+
+      if (currentQuestion.img) {
+        imageEl.src = currentQuestion.img;
+        imageEl.style.display = "block";
+      } else {
+        imageEl.style.display = "none";
+      }
+
+      typedTextEl.textContent = romaList[0];
+      messageEl.textContent = "入力してください";
+    }
+
+    function updateDisplay() {
+      scoreEl.textContent = score;
+      timeEl.textContent = timeLeft;
+      countEl.textContent = count;
+
+      if (!currentQuestion) return;
+
+      const romaList = getRomaList(currentQuestion);
+      const matchedRoma = romaList.find(roma => roma.startsWith(typed));
+      const displayRoma = matchedRoma || romaList[0];
+      const remainPart = displayRoma.slice(typed.length);
+
+      if (matchedRoma) {
+        typedTextEl.innerHTML = `<span class="typed-correct">${typed}</span>${remainPart}`;
+      } else {
+        typedTextEl.innerHTML = `<span class="typed-wrong">${typed}</span>`;
+      }
+    }
+
+    function renderHistoryImages() {
+      historyImagesEl.innerHTML = shownQuestions.map((q, index) => `
+        <div class="history-item">
+          <img src="${q.img}" alt="${q.jp}">
+          <div class="history-name">${index + 1}. ${q.jp}</div>
+        </div>
+      `).join("");
+    }
+
+    function startGame() {
+      playSE(seStart);
+      stopBGM();
+      startBGM();
+
+      score = 0;
+      count = 0;
+      timeLeft = gameTime;
+      typed = "";
+      isPlaying = true;
+      shownQuestions = [];
+      historyImagesEl.innerHTML = "";
+      resultEl.style.display = "none";
+      shuffledQuestions = shuffle(questions);
+
+      setNewQuestion();
+      updateDisplay();
+
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft--;
+        updateDisplay();
+
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+
+      messageEl.textContent = "ゲーム開始";
+    }
+
+    function endGame() {
+      clearInterval(timer);
+      isPlaying = false;
+      stopBGM();
+
+      questionEl.textContent = "終了";
+      subTextEl.textContent = "";
+      typedTextEl.textContent = "";
+      messageEl.textContent = "もう一度ボタンで再開できます";
+      imageEl.style.display = "none";
+
+      finalScoreEl.textContent = `スコア: ${score}`;
+      finalCountEl.textContent = `正解した問題数: ${count}`;
+      finalModeEl.textContent = `モード: ${gameTime === 60 ? "1分" : "2分"}`;
+
+      renderHistoryImages();
+      resultEl.style.display = "block";
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (!isPlaying || !currentQuestion) return;
+      if (e.key.length !== 1) return;
+
+      const key = e.key.toLowerCase();
+      if (!/^[a-z-]$/.test(key)) return;
+
+      const romaList = getRomaList(currentQuestion);
+      const nextTyped = typed + key;
+
+      const partialMatch = romaList.some(roma => roma.startsWith(nextTyped));
+      const completeMatch = romaList.some(roma => roma === nextTyped);
+
+      if (partialMatch) {
+        typed = nextTyped;
+        updateDisplay();
+
+        if (completeMatch) {
+          score += 10;
+          count += 1;
+          messageEl.textContent = "正解！";
+          playSE(seCorrect);
+          setNewQuestion();
+          updateDisplay();
+        }
+      } else {
+        score = Math.max(0, score - 1);
+        messageEl.textContent = "まちがい";
+        playSE(seWrong);
+        updateDisplay();
+      }
+    });
+
+    mode1Btn.addEventListener("click", () => setMode(60));
+    mode2Btn.addEventListener("click", () => setMode(120));
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+
+    setMode(60);
+    updateDisplay();
+  </script>
+</body>
+</html>
